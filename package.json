@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "description": "’",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "dev": "nodemon --watch src --exec ts-node src/api/server.ts",
+    "build": "tsc",
+    "start": "node dist/api/server.js",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -12,5 +18,8 @@
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3"
   }
 }
