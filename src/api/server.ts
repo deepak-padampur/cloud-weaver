@@ -6,7 +6,7 @@
 
 import express, { Request, Response } from 'express';
 import { PORT, API_BASE_URL } from '../const/index';
-import { scheduler } from '../scheduler';
+import { Job, scheduler } from '../scheduler';
 
 const app = express();
 
@@ -31,6 +31,14 @@ app.post(`${API_BASE_URL}/workload`, (req: Request, res: Response) => {
   res.status(202).json({
     status: 'scheduled',
     message: scheduledJob || addedJob,
+  });
+});
+
+app.get(`${API_BASE_URL}/jobs`, (req: Request, res: Response) => {
+  const jobs: Job[] = scheduler.listJob();
+  res.status(200).json({
+    status: 'ok',
+    message: jobs,
   });
 });
 

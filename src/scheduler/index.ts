@@ -56,6 +56,10 @@ export class Scheduler {
     }
     return false;
   }
+
+  public listJob():Job[]{
+    return this.queue;
+  }
 }
 
 export const scheduler = new Scheduler()
