@@ -9,3 +9,4 @@
 - **Heartbeat & Auto-Healing:** Just like you check if someone is breathing, a heartbeat system `checks if a server is alive`. If it’s not, we restart it or move the job somewhere else.
 
 - **Event & Analytics Queue:** This `records` every action (start, stop, failure) so we can monitor, debug, and optimize our system.”
+
