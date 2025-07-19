@@ -45,7 +45,7 @@ app.get(`${API_BASE_URL}/jobs`, (req: Request, res: Response) => {
   });
 });
 
-app.post('/heartbeat', (req: Request, res: Response) => {
+app.post(`${API_BASE_URL}/heartbeat`, (req: Request, res: Response) => {
   const { instanceId } = req.body;
   if (!instanceId)
     return res.status(400).json({ error: 'instanceId required' });
