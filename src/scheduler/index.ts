@@ -37,7 +37,7 @@ export class Scheduler {
   }
 
   public scheduleNext(): Job | null {
-    const job = this.queue.find((j) => j.state == 'PENDING');
+    const job = this.queue.find((j) => j.state === 'PENDING');
     if (job) {
       job.state = 'RUNNING';
       console.log(`[Scheduler] Job started: ${job.id}`);
