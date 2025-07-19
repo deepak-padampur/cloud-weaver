@@ -9,6 +9,8 @@ import { PORT, API_BASE_URL } from '../const/index';
 import { Job, scheduler } from '../scheduler';
 import { heartbeatService } from '../heartbeat/HeartBeatService';
 import { autoHealingWorker } from "../heartbeat/AutoHealingWorker";
+import "../events/LoggerSubscriber";
+
 
 const app = express();
 autoHealingWorker.run();

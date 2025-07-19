@@ -11,6 +11,7 @@
  */
 
 import { MockProvider } from '../cloud/MockProvider';
+import { EVENT_TYPES, eventQueue } from '../events/EventQueue';
 
 export type JobState = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
 
@@ -37,6 +38,9 @@ export class Scheduler {
     };
     this.queue.push(job);
     console.log(`[Scheduler] Job queued: ${job.id}`);
+
+    eventQueue.publish(EVENT_TYPES.JOB_SCHEDULED, job);
+
     return job;
   }
 
@@ -61,6 +65,7 @@ export class Scheduler {
     if (job) {
       job.state = 'COMPLETED';
       console.log(`[Scheduler] Job completed: ${job.id}`);
+      eventQueue.publish(EVENT_TYPES.JOB_COMPLETED, { jobId });
       return true;
     }
     return false;
