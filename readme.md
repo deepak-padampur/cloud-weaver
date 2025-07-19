@@ -1,4 +1,4 @@
-### Blueprint of our orchestrator:
+### Blueprint of the orchestrator:
 
 - **Orchestrator API:** This is the `front door`. Users or apps say: ‘Hey, I need a server to run this job.’
 
