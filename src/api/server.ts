@@ -7,8 +7,11 @@
 import express, { Request, Response } from 'express';
 import { PORT, API_BASE_URL } from '../const/index';
 import { Job, scheduler } from '../scheduler';
+import { heartbeatService } from '../heartbeat/HeartBeatService';
+import { autoHealingWorker } from "../heartbeat/AutoHealingWorker";
 
 const app = express();
+autoHealingWorker.run();
 
 app.use(express.json());
 
@@ -40,6 +43,15 @@ app.get(`${API_BASE_URL}/jobs`, (req: Request, res: Response) => {
     status: 'ok',
     message: jobs,
   });
+});
+
+app.post('/heartbeat', (req: Request, res: Response) => {
+  const { instanceId } = req.body;
+  if (!instanceId)
+    return res.status(400).json({ error: 'instanceId required' });
+
+  heartbeatService.recordHeartbeat(instanceId);
+  res.status(200).json({ status: 'ok' });
 });
 
 app.listen(PORT, () => {

@@ -26,3 +26,6 @@ export class HeartBeatService {
     return unhealthy;
   }
 }
+
+
+export const heartbeatService = new HeartBeatService();

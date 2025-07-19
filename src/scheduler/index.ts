@@ -10,6 +10,8 @@
    Can be re-written with [GO/RUST] for better performance
  */
 
+import { MockProvider } from '../cloud/MockProvider';
+
 export type JobState = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
 
 export interface Job {
@@ -19,6 +21,8 @@ export interface Job {
   state: JobState;
   createdAt: number;
 }
+
+const cloudProvider = new MockProvider();
 
 export class Scheduler {
   private queue: Job[] = [];
@@ -36,30 +40,35 @@ export class Scheduler {
     return job;
   }
 
-  public scheduleNext(): Job | null {
+  public async scheduleNext(): Promise<Job | null> {
     const job = this.queue.find((j) => j.state === 'PENDING');
     if (job) {
       job.state = 'RUNNING';
-      console.log(`[Scheduler] Job started: ${job.id}`);
-      // Simulate resource allocation here
+      const instance = await cloudProvider.provisionInstance({
+        region: job.region,
+        type: job.type,
+      });
+      console.log(
+        `[Scheduler] Allocated instance ${instance.id} for job ${job.id}`,
+      );
       return job;
     }
     return null;
   }
 
-   public completeJob(jobId: string): boolean {
-    const job = this.queue.find(j => j.id === jobId);
+  public completeJob(jobId: string): boolean {
+    const job = this.queue.find((j) => j.id === jobId);
     if (job) {
-      job.state = "COMPLETED";
+      job.state = 'COMPLETED';
       console.log(`[Scheduler] Job completed: ${job.id}`);
       return true;
     }
     return false;
   }
 
-  public listJob():Job[]{
+  public listJob(): Job[] {
     return this.queue;
   }
 }
 
-export const scheduler = new Scheduler()
+export const scheduler = new Scheduler();
