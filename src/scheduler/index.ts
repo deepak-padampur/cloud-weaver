@@ -25,7 +25,7 @@ export class Scheduler {
 
   public addJob(region: string, type: string): Job {
     const job: Job = {
-      id: `job-${Date.now()}-${Math.random().toString(36)}}`,
+      id: `job-${Date.now()}-${Math.random().toString(36)}`,
       region,
       type,
       state: 'PENDING',

@@ -4,8 +4,9 @@
  * @Description Server API entry point
  */
 
-import express, { Request, Response } from "express";
-import { PORT, API_BASE_URL } from "../const/index";
+import express, { Request, Response } from 'express';
+import { PORT, API_BASE_URL } from '../const/index';
+import { scheduler } from '../scheduler';
 
 const app = express();
 
@@ -13,16 +14,23 @@ app.use(express.json());
 
 app.get(`${API_BASE_URL}/health`, (req: Request, res: Response) => {
   res.status(200).json({
-    status: "ok",
-    message: "API is running smoothly!",
+    status: 'ok',
+    message: 'API is running smoothly!',
   });
 });
 
 app.post(`${API_BASE_URL}/workload`, (req: Request, res: Response) => {
   const { region, type } = req.body;
+  if (!region || !type) {
+    return res.status(400).json({ error: 'Region and type are required' });
+  }
+
+  const addedJob = scheduler.addJob(region, type);
+  const scheduledJob = scheduler.scheduleNext();
+
   res.status(202).json({
-    status: "accepted",
-    message: `Workload request received for region: ${region}, type: ${type}`,
+    status: 'scheduled',
+    message: scheduledJob || addedJob,
   });
 });
 
