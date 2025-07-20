@@ -6,11 +6,10 @@
 
 import express, { Request, Response } from 'express';
 import { PORT, API_BASE_URL } from '../const/index';
-import { Job, scheduler } from '../scheduler';
+import { Job, smartScheduler, scheduler } from '../scheduler';
 import { heartbeatService } from '../heartbeat/HeartBeatService';
-import { autoHealingWorker } from "../heartbeat/AutoHealingWorker";
-import "../events/LoggerSubscriber";
-
+import { autoHealingWorker } from '../heartbeat/AutoHealingWorker';
+import '../events/LoggerSubscriber';
 
 const app = express();
 autoHealingWorker.run();
@@ -24,19 +23,20 @@ app.get(`${API_BASE_URL}/health`, (req: Request, res: Response) => {
   });
 });
 
-app.post(`${API_BASE_URL}/workload`, (req: Request, res: Response) => {
-  const { region, type } = req.body;
+app.post(`${API_BASE_URL}/workload`, async (req: Request, res: Response) => {
+  const { region, type, cpu, memory } = req.body;
+
   if (!region || !type) {
     return res.status(400).json({ error: 'Region and type are required' });
   }
 
-  const addedJob = scheduler.addJob(region, type);
-  const scheduledJob = scheduler.scheduleNext();
-
-  res.status(202).json({
-    status: 'scheduled',
-    message: scheduledJob || addedJob,
-  });
+  const result = await smartScheduler.scheduleJob(
+    region,
+    type,
+    cpu || 1,
+    memory || 512,
+  );
+  res.status(202).json(result);
 });
 
 app.get(`${API_BASE_URL}/jobs`, (req: Request, res: Response) => {

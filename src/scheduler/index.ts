@@ -12,6 +12,7 @@
 
 import { MockProvider } from '../cloud/MockProvider';
 import { EVENT_TYPES, eventQueue } from '../events/EventQueue';
+import { resourceTracker } from './ResourceTracker';
 
 export type JobState = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
 
@@ -76,4 +77,38 @@ export class Scheduler {
   }
 }
 
+export class SmartScheduler {
+  // Add job with resource requirements
+  public async scheduleJob(region: string, type: string, cpu = 1, memory = 512): Promise<any> {
+    console.log(`[SmartScheduler] Attempting to schedule job in ${region}`);
+
+    // Step 1: Check existing servers
+    const server = resourceTracker.getAvailableServer(region, cpu, memory);
+    if (server) {
+      resourceTracker.allocateResources(server.id, cpu, memory);
+      console.log(`[SmartScheduler] Job scheduled on server ${server.id}`);
+      eventQueue.publish(EVENT_TYPES.JOB_SCHEDULED, { region, type, serverId: server.id });
+      return { status: "scheduled", serverId: server.id };
+    }
+
+    // Step 2: Provision new server if none available
+    const instance = await cloudProvider.provisionInstance({ region, type });
+    resourceTracker.addServer({
+      id: instance.id,
+      region: instance.region,
+      costPerHour: 0.10, // mock cost
+      totalCPU: 4,
+      usedCPU: cpu,
+      totalMemory: 4096,
+      usedMemory: memory,
+    });
+
+    console.log(`[SmartScheduler] New server provisioned: ${instance.id}`);
+    eventQueue.publish(EVENT_TYPES.JOB_SCHEDULED, { region, type, serverId: instance.id });
+    return { status: "scheduled", serverId: instance.id };
+  }
+}
+
+export const smartScheduler = new SmartScheduler();
 export const scheduler = new Scheduler();
+
